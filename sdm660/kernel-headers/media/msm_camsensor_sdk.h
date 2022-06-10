@@ -5,7 +5,7 @@
 
 #define KVERSION 0x1
 
-#define MAX_POWER_CONFIG      12
+#define MAX_POWER_CONFIG      20
 #define GPIO_OUT_LOW          (0 << 1)
 #define GPIO_OUT_HIGH         (1 << 1)
 #define CSI_EMBED_DATA        0x12
@@ -45,7 +45,7 @@
 
 #define MAX_LED_TRIGGERS          3
 
-#define MSM_EEPROM_MEMORY_MAP_MAX_SIZE  80
+#define MSM_EEPROM_MEMORY_MAP_MAX_SIZE  2048+1+80 /* MM-JF-implement-dual-cam-recalibration-00+ */
 #define MSM_EEPROM_MAX_MEM_MAP_CNT      8
 
 #define MSM_SENSOR_BYPASS_VIDEO_NODE    1
@@ -82,6 +82,7 @@ enum msm_sensor_power_seq_type_t {
 	SENSOR_VREG,
 	SENSOR_I2C_MUX,
 	SENSOR_I2C,
+	SENSOR_EXPAND,
 };
 
 enum msm_camera_i2c_reg_addr_type {
@@ -176,9 +177,8 @@ enum msm_actuator_write_type {
 enum msm_actuator_i2c_operation {
 	MSM_ACT_WRITE = 0,
 	MSM_ACT_POLL,
-#ifdef CONFIG_MACH_MI
-	MSM_ACT_POLL_RESULT,
-#endif
+	MSM_ACT_FIH_READ_AND_TO_WRITE, ///fihtdc@20180529, peter add
+	MSM_ACT_FIH_READ_OR_TO_WRITE, ///fihtdc@20180529, peter add
 };
 
 enum actuator_type {
@@ -304,43 +304,6 @@ struct msm_sensor_id_info_t {
 	unsigned short sensor_id_mask;
 };
 
-#ifdef CONFIG_MACH_XIAOMI_SDM660
-enum msm_cci_i2c_master_t {
-	MSM_MASTER_0,
-	MSM_MASTER_1,
-	MSM_MASTER_MAX,
-};
-
-struct msm_vendor_id_info_t {
-	unsigned short eeprom_slave_addr;
-	unsigned short vendor_id_addr;
-	enum msm_camera_i2c_reg_addr_type addr_type;
-	unsigned short vendor_id;
-	enum msm_camera_i2c_data_type data_type;
-	enum msm_cci_i2c_master_t cci_i2c_master;
-};
-
-struct msm_vcm_id_info_t {
-	unsigned short eeprom_slave_addr;
-	unsigned short vcm_id_addr;
-	enum msm_camera_i2c_reg_addr_type addr_type;
-	unsigned short vcm_id;
-	enum msm_camera_i2c_data_type data_type;
-	enum msm_cci_i2c_master_t cci_i2c_master;
-};
-
-#ifdef CONFIG_MACH_XIAOMI_NEW_CAMERA
-struct msm_lens_id_info_t {
-    unsigned short eeprom_slave_addr;
-    unsigned short lens_id_addr;
-    enum msm_camera_i2c_reg_addr_type addr_type;
-    unsigned short lens_id;
-    enum msm_camera_i2c_data_type data_type;
-    enum msm_cci_i2c_master_t cci_i2c_master;
-};
-#endif
-#endif
-
 struct msm_camera_sensor_slave_info {
 	char sensor_name[32];
 	char eeprom_name[32];
@@ -352,13 +315,6 @@ struct msm_camera_sensor_slave_info {
 	enum i2c_freq_mode_t i2c_freq_mode;
 	enum msm_camera_i2c_reg_addr_type addr_type;
 	struct msm_sensor_id_info_t sensor_id_info;
-#ifdef CONFIG_MACH_XIAOMI_SDM660
-	struct msm_vendor_id_info_t vendor_id_info;
-	struct msm_vcm_id_info_t vcm_id_info;
-#ifdef CONFIG_MACH_XIAOMI_NEW_CAMERA
-    struct msm_lens_id_info_t lens_id_info;
-#endif
-#endif
 	struct msm_sensor_power_setting_array power_setting_array;
 	unsigned char  is_init_params_valid;
 	struct msm_sensor_init_params sensor_init_params;
